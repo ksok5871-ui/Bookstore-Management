@@ -1,0 +1,52 @@
+{% extends 'layout/base.html' %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center my-5">
+    <div class="col-md-5">
+        <div class="card shadow-sm border-0" style="border-radius: 10px;">
+            <div class="card-body p-4 p-md-5">
+
+                <div class="text-center mb-4">
+                    <i class="fa-solid fa-user-plus fa-3x mb-2" style="color: #434a42;"></i>
+                    <h3 class="fw-bold" style="color: #4a4238;">Create an Account</h3>
+                    <p class="text-muted small">Please fill in the information below to sign up.</p>
+                </div>
+
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-secondary">Username</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="fa-solid fa-user text-muted"></i></span>
+                            <input type="text" name="username" class="form-control" placeholder="Enter your username" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-secondary">Email Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="fa-solid fa-envelope text-muted"></i></span>
+                            <input type="email" name="email" class="form-control" placeholder="example@email.com" required>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-bold small text-secondary">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="fa-solid fa-lock text-muted"></i></span>
+                            <input type="password" name="password" class="form-control" placeholder="********" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-warning w-100 py-2 fw-bold text-white shadow-sm">
+                        <i class="fa-solid fa-user-check me-1"></i> Register
+                    </button>
+                </form>
+
+                <div class="text-center mt-4 pt-3 border-top">
+                    <p class="small text-muted mb-0">Already have an account? <a href="{{ url_for('login') }}" class="text-decoration-none fw-bold" style="color: #bc8a5f;">Login here</a></p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

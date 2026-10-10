@@ -1,0 +1,34 @@
+{% extends 'layout/base.html' %}
+
+{% block title %}Add New Category{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 600px;">
+    <div class="card shadow-sm border-0">
+
+        <!-- Card Header -->
+        <div class="card-header bg-primary text-white py-3">
+            <h4 class="mb-0 fs-5"><i class="fa-solid fa-folder-plus me-2"></i>Add New Category</h4>
+        </div>
+
+        <!-- Card Body -->
+        <div class="card-body p-4">
+            <form action="{{ url_for('create_category') }}" method="POST">
+
+                <!-- Category Name Input -->
+                <div class="mb-3">
+                    <label for="name" class="form-label fw-bold">Category Name <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="name" name="name" placeholder="e.g., Fiction, Technology..." required>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+                    <a href="/categories" class="btn btn-secondary px-4">Cancel</a>
+                    <button type="submit" class="btn btn-success px-4"><i class="fa-solid fa-save me-1"></i>Save Category</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends 'layout/base.html' %}
+
+{% block title %}Order History{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h3 class="fw-bold mb-0" style="color: #4a4238;">
+            <i class="fa-solid fa-receipt me-2" style="color: #e3b873;"></i>Order History & Management
+        </h3>
+        <hr class="text-muted">
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        {% if orders %}
+            <div class="card shadow-sm border-0" style="border-radius: 8px;">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th class="ps-3 py-3">Order ID</th>
+                                    {% if session.get('role') == 'admin' %}
+                                        <th class="py-3">Customer</th>
+                                    {% endif %}
+                                    <th class="py-3">Total Price</th>
+                                    <th class="py-3">Status</th>
+                                    <th class="py-3">Date</th>
+                                    <th class="text-end pe-3 py-3">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in orders %}
+                                    <tr>
+                                        <td class="ps-3 fw-bold text-dark">#{{ order.id }}</td>
+                                        {% if session.get('role') == 'admin' %}
+                                            <td><span class="badge bg-secondary">{{ order.username }}</span></td>
+                                        {% endif %}
+                                        <td class="text-success fw-bold">${{ "%.2f"|format(order.total_price) }}</td>
+                                        <td>
+                                            <span class="badge {% if order.status == 'Pending' %}bg-warning text-dark{% else %}bg-success{% endif %}">
+                                                {{ order.status }}
+                                            </span>
+                                        </td>
+                                        <td class="text-muted small">{{ order.created_at }}</td>
+                                        <td class="text-end pe-3">
+                                            <a href="{{ url_for('order_detail', order_id=order.id) }}" class="btn btn-sm btn-outline-secondary fw-semibold">
+                                                <i class="fa-solid fa-eye me-1"></i> View Details
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="text-center py-5 bg-white rounded shadow-sm border-0">
+                <i class="fa-solid fa-box-open fa-3x text-muted mb-3 d-block"></i>
+                <h5 class="fw-bold text-dark">No orders found!</h5>
+                <p class="text-muted mb-0">There is no order history available in the system yet.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

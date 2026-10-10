@@ -1,0 +1,81 @@
+{% extends 'layout/base.html' %}
+
+{% block title %}Order Details #{{ order.id }}{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <h3 class="fw-bold mb-0" style="color: #4a4238;">
+            <i class="fa-solid fa-circle-info me-2" style="color: #e3b873;"></i>Order Details #{{ order.id }}
+        </h3>
+        <a href="{{ url_for('orders') }}" class="btn btn-outline-secondary btn-sm fw-bold">
+            <i class="fa-solid fa-arrow-left me-1"></i> Back
+        </a>
+    </div>
+    <div class="col-12"><hr class="text-muted"></div>
+</div>
+
+<div class="row">
+    <!-- Order General Information -->
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm border-0 p-3 h-100">
+            <h5 class="fw-bold mb-3 text-secondary">Customer Information</h5>
+            <p class="mb-2"><strong>Name:</strong> {{ order.username }}</p>
+            <p class="mb-2"><strong>Email:</strong> {{ order.email }}</p>
+            <p class="mb-2"><strong>Date:</strong> {{ order.created_at }}</p>
+            <p class="mb-2">
+                <strong>Status:</strong>
+                <span class="badge {% if order.status == 'Pending' %}bg-warning text-dark{% else %}bg-success{% endif %}">
+                    {{ order.status }}
+                </span>
+            </p>
+            <hr>
+            <h5 class="fw-bold text-success">Total Amount: ${{ "%.2f"|format(order.total_price) }}</h5>
+        </div>
+    </div>
+
+    <!-- Order Items List -->
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold mb-0 text-secondary">Ordered Books List</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th class="ps-3 py-3">Book Title</th>
+                                <th class="py-3">Price</th>
+                                <th class="py-3">Quantity</th>
+                                <th class="text-end pe-3 py-3">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items %}
+                                <tr>
+                                    <td class="ps-3">
+                                        <div class="d-flex align-items-center">
+                                            {% if item.image %}
+                                                <img src="{{ item.image }}" alt="" style="width: 40px; height: 50px; object-fit: cover; border-radius: 4px;" class="me-2 border">
+                                            {% else %}
+                                                <div class="bg-secondary text-white d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 50px; border-radius: 4px;">
+                                                    <i class="fa-solid fa-book"></i>
+                                                </div>
+                                            {% endif %}
+                                            <span class="fw-bold text-dark">{{ item.title }}</span>
+                                        </div>
+                                    </td>
+                                    <td>${{ "%.2f"|format(item.price) }}</td>
+                                    <td><span class="badge bg-light text-dark border">{{ item.quantity }} units</span></td>
+                                    <td class="text-end pe-3 fw-bold text-success">${{ "%.2f"|format(item.price * item.quantity) }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

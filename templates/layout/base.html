@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Bookstore System{% endblock %}</title>
+
+    <!-- 1. Bootstrap 5.3 CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- 2. FontAwesome Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <style>
+        body {
+            background-color: #fcfaf7;
+            font-family: system-ui, -apple-system, sans-serif;
+            color: #4a4238;
+        }
+        .navbar {
+            background-color: #434a42 !important;
+        }
+        .navbar-brand, .nav-link {
+            color: #f4f1ea !important;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #e3b873 !important;
+        }
+        .navbar-brand {
+            font-size: 1.4rem;
+        }
+        .card {
+            border: 1px solid #eae2d0;
+            background-color: #ffffff;
+            border-radius: 8px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 20px rgba(74, 66, 56, 0.08) !important;
+        }
+        .btn-warning {
+            background-color: #d4a373;
+            border-color: #d4a373;
+            color: #ffffff;
+        }
+        .btn-warning:hover {
+            background-color: #bc8a5f;
+            border-color: #bc8a5f;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 3. Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm">
+        <div class="container">
+            <!-- Logo -->
+            <a class="navbar-brand fw-bold text-warning" href="{{ url_for('index') }}">
+                <i class="fa-solid fa-book-open me-2"></i>Bookstore
+            </a>
+
+            <!-- Mobile Toggle Button -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <!-- Left Menu Links -->
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="{{ url_for('index') }}">
+                            <i class="fa-solid fa-house me-1"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if '/categories' in request.path %}active{% endif %}" href="{{ url_for('index_category') }}">
+                            <i class="fa-solid fa-layer-group me-1"></i> Categories
+                        </a>
+                    </li>
+                    {% if session.get('user_id') %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if '/orders' in request.path %}active{% endif %}" href="{{ url_for('orders') }}">
+                            <i class="fa-solid fa-receipt me-1"></i> Orders
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+
+                <!-- Search Bar (Center) -->
+                <form class="d-flex me-3" action="{{ url_for('index') }}" method="GET">
+                    <div class="input-group">
+                        <input class="form-control" type="search" name="search" placeholder="Search books..." value="{{ request.args.get('search', '') }}" aria-label="Search">
+                        <button class="btn btn-warning" type="submit">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Right Menu (Admin Notifications / User Cart / Login / User Profile) -->
+                <ul class="navbar-nav ms-auto align-items-center">
+
+                    {% if session.get('role') == 'admin' or session.get('is_admin') %}
+                        <!-- Admin: Notification Bell -->
+                        <li class="nav-item dropdown me-3">
+                            <a class="nav-link dropdown-toggle position-relative" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="fa-solid fa-bell fs-5"></i>
+                                {% if unread_count > 0 %}
+                                    <span class="position-absolute top-25 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 10px;">
+                                        {{ unread_count }}
+                                    </span>
+                                {% endif %}
+                            </a>
+
+                            <!-- Notification Dropdown Menu -->
+                            <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="notificationDropdown" style="width: 300px;">
+                                <li><h6 class="dropdown-header text-center fw-bold">Admin Notifications</h6></li>
+                                <li><hr class="dropdown-divider"></li>
+
+                                {% if admin_notifications %}
+                                    {% for notif in admin_notifications %}
+                                        <li>
+                                            <a href="{{ url_for('read_notification', id=notif.id) }}"
+                                               class="dropdown-item px-3 py-2 border-bottom {% if notif.is_read == 0 %}bg-light fw-bold{% endif %}">
+                                                <div class="small text-muted" style="font-size: 0.75rem;">{{ notif.created_at }}</div>
+                                                <div class="text-dark" style="font-size: 0.9rem;">{{ notif.message }}</div>
+                                            </a>
+                                        </li>
+                                    {% endfor %}
+                                {% else %}
+                                    <li><span class="dropdown-item text-center text-muted small py-3">No new notifications</span></li>
+                                {% endif %}
+                            </ul>
+                        </li>
+                    {% elif session.get('user_id') %}
+                        <!-- Regular User: Cart -->
+                        <li class="nav-item me-3">
+                            <a class="nav-link position-relative" href="{{ url_for('view_cart') }}">
+                                <i class="fa-solid fa-cart-shopping me-1"></i> Cart
+                                {% if cart_count > 0 %}
+                                    <span class="position-absolute top-25 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 10px;">
+                                        {{ cart_count }}
+                                    </span>
+                                {% endif %}
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    <!-- Admin: Add Book Button -->
+                    {% if session.get('role') == 'admin' %}
+                        <li class="nav-item me-2">
+                            <a class="nav-link text-warning fw-bold" href="{{ url_for('create_book') }}">
+                                <i class="fa-solid fa-plus-circle me-1"></i> Add Book
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    <!-- User Account Dropdown / Login & Register -->
+                    {% if session.get('user_id') %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fa-solid fa-user-circle me-1"></i> {{ session.get('username', 'Account') }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                <li>
+                                    <a class="dropdown-item text-danger" href="{{ url_for('logout') }}">
+                                        <i class="fa-solid fa-right-from-bracket me-1"></i> Logout
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('login') }}">
+                                <i class="fa-solid fa-right-to-bracket me-1"></i> Login
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link btn btn-warning text-white ms-2 px-3 py-1" href="{{ url_for('register') }}">
+                                Register
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container Content -->
+    <main class="container my-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm" role="alert">
+                        <i class="fa-solid {% if category == 'success' %}fa-circle-check{% else %}fa-triangle-exclamation{% endif %} me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-top py-3 mt-auto text-center text-muted fs-7">
+        <div class="container">
+            <small>© 2026 Bookstore Management System. All rights reserved.</small>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5.3 JS Bundle CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- JavaScript for Live Search -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const searchInput = document.querySelector('input[name="search"]');
+            if (searchInput) {
+                searchInput.addEventListener('input', function(e) {
+                    const searchText = e.target.value.toLowerCase().trim();
+                    const bookCards = document.querySelectorAll('.container .row > div, .card');
+                    bookCards.forEach(card => {
+                        const titleElement = card.querySelector('h5, h4, .card-title, a');
+                        if (titleElement) {
+                            const titleText = titleElement.textContent.toLowerCase();
+                            if (titleText.includes(searchText)) {
+                                card.style.display = '';
+                            } else {
+                                card.style.display = 'none';
+                            }
+                        }
+                    });
+                });
+            }
+        });
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
