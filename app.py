@@ -785,9 +785,5 @@ def delete_category(id):
     flash('Category deleted successfully!', 'danger')
     return redirect(url_for('index_category'))
 
-
-# ==========================================
-# RUN APPLICATION
-# ==========================================
 if __name__ == '__main__':
     app.run(debug=True)
